@@ -39,22 +39,22 @@ def main():
     print(f"  Feature matrix: {X.shape[0]} samples × {X.shape[1]} features")
     print(f"  Features: {FEATURES}")
 
-    # Train/test split
+    # Train/test split, ##20% test size, 80% train size, this part means that the test data will be 20% of the total data and the train data will be 80% of the total data
     X_train, X_test, y_delay_train, y_delay_test, y_window_train, y_window_test = \
         train_test_split(X, y_delay, y_window, test_size=0.2, random_state=42)
     print(f"  Train: {len(X_train)}, Test: {len(X_test)}")
 
-    # ----- Model 1: Delay Regressor -----
+    # ----- Model 1: Delay Regressor -----##MODELİ EĞİT 🏋️
     print("\n[3/5] Training delay regressor (XGBRegressor)...")
     model_delay = XGBRegressor(
-        n_estimators=300,
-        max_depth=6,
-        learning_rate=0.1,
-        subsample=0.8,
-        colsample_bytree=0.8,
-        random_state=42,
+        n_estimators=300, # 300 tur çalış  
+        max_depth=6, # 6 seviye derinliğinde düşün
+        learning_rate=0.1, # öğrenme oranı
+        subsample=0.8, # %80 veri kullan
+        colsample_bytree=0.8, # %80 özellik kullan
+        random_state=42, # rastgelelik ayarı anlamı
     )
-    model_delay.fit(X_train, y_delay_train)
+    model_delay.fit(X_train, y_delay_train)# modelin eğitilmesini sağlıyan kısım 
 
     y_pred_delay = model_delay.predict(X_test)
     mae = mean_absolute_error(y_delay_test, y_pred_delay)
