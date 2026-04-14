@@ -1,0 +1,9 @@
+node_modules/
+__pycache__/
+.env
+ml/models/*.joblib
+*.pyc
+.vite/
+dist/
+.DS_Store
+*.egg-info/
