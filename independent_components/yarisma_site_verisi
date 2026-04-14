@@ -1,0 +1,76 @@
+Smart logistics
+Real-time delivery route optimization
+Clear tips for dispatchers
+Reorders stops automatically
+Predicts delays in advance
+SMART LOGISTICS is a service that optimizes delivery routes in real time, taking into account traffic, weather, delays, and customer time windows. Its goal is to help logistics companies deliver faster, more reliably, and at lower operational costs by providing couriers and dispatchers with adaptive, continuously updated continuously updated routes.
+1) Context and problem
+In logistics, even small delays along a route can lead to missed delivery windows, higher costs, and a poorer customer experience. Routes are often planned in advance and do not adapt to dynamic conditions such as traffic jams, weather changes, or local incidents. Dispatchers see only a partial picture — where the courier is now, how many stops remain, and how the traffic conditions are evolving. SMART LOGISTICS should bridge this gap by predicting the probability of delays at each route segment and suggesting optimizations: reordering stops, adjusting departure times, changing the route, or offering detour options.
+2) Data provided
+delivery routes and time windows
+traffic data, vehicle speeds, and road conditions
+weather parameters (temperature, precipitation, wind)
+delay statistics (historical and/or aggregated)
+3) Expected product
+A service that:
+
+predicts the probability of delays along a route
+suggests an optimized order of stops
+recalculates departure time and optimal route based on real-time conditions
+provides recommendations in a dispatcher-friendly format
+4) Constraints
+recommendations must be concrete and practical, without excessive technical detail
+route logic must remain interpretable: it should be clear why a stop is changed or a departure time adjusted
+visualizations must be compact and quickly readable (e.g., “Delay in 12 minutes — we recommend reordering stop #3”)
+5) Success metrics (aligned with evaluation criteria)
+delay prediction accuracy: how well the model predicts actual disruptions and risks (Effectiveness & task alignment)
+quality of optimization suggestions: how much the recommendations improve delivery speed and stability (Effectiveness & task alignment)
+dispatcher interface clarity: how easily a dispatcher can comprehend route updates and recommendations (UX & interface)
+proper use of AI: AI genuinely improves delay prediction or route optimization (Use of ML/AI)
+MVP stability and code quality: system runs without critical errors, its logic is clear, and the code is well-structured (Code quality & architecture)
+6) Final deliverables
+Participants must provide three mandatory deliverables:
+
+repository access. Sufficient technical information required to validate the solution: frontend, API snippet, Postman workspace, Docker/Python build test, or any format that allows experts to run and evaluate the project
+link to the project presentation. Explaining the idea, system architecture, delay prediction method, and example optimizations
+link to a working MVP or clickable prototype, demonstrating the key scenario: delay prediction and route optimization suggestions
+
+
+
+#türkçesi:
+Akıllı Lojistik
+Gerçek zamanlı teslimat rotası optimizasyonu
+Operatörler için net ipuçları
+Durağı otomatik yeniden sıralama
+Gecikmeleri önceden tahmin etme
+SMART LOGISTICS, trafik, hava durumu, gecikmeler ve müşteri zaman aralıklarını dikkate alarak teslimat rotalarını gerçek zamanlı olarak optimize eden bir hizmettir. Amacı, kuryelere ve dağıtım operatörlerine sürekli güncellenen uyarlanabilir rotalar sunarak lojistik şirketlerinin daha hızlı, daha güvenilir ve daha düşük operasyonel maliyetlerle teslimat yapmasına yardımcı olmaktır.
+1) Bağlam ve problem
+Lojistikte rotalar üzerindeki küçük gecikmeler bile teslimat penceresinin kaçırılmasına, maliyetlerin artmasına ve müşteri deneyiminin kötüleşmesine neden olabilir. Rotalar genellikle önceden planlanır ve trafik sıkışıklığı, hava durumu değişiklikleri veya yerel olaylar gibi dinamik koşullara uyum sağlamaz. Operatörler yalnızca sınırlı bir görünüm görür: kurye şu anda nerede, kaç durak kaldı ve trafik koşulları nasıl gelişiyor. SMART LOGISTICS, her rota segmentindeki gecikme olasılığını tahmin ederek ve durakları yeniden sıralama, kalkış saatini ayarlama, rotayı değiştirme veya alternatif güzergah seçenekleri sunma gibi optimizasyonlar önererek bu boşluğu doldurmalıdır.
+2) Sağlanan veriler
+Teslimat rotaları ve zaman aralıkları
+Trafik verileri, araç hızları ve yol koşulları
+Hava durumu parametreleri (sıcaklık, yağış, rüzgar)
+Gecikme istatistikleri (tarihsel ve/veya toplu)
+3) Beklenen ürün
+Şunları yapan bir hizmet:
+
+Gecikme olasılığını bir rota üzerinde tahmin eder
+Durağın optimize edilmiş bir sırasını önerir
+Gerçek zamanlı koşullara göre kalkış saatini ve optimum rotayı yeniden hesaplar
+Operatör dostu bir formatta öneriler sunar
+4) Kısıtlamalar
+Öneriler, aşırı teknik ayrıntılar içermeyen, somut ve pratik olmalıdır
+Rota mantığı yorumlanabilir kalmalıdır: bir durağın neden değiştirildiği veya bir kalkış saatini neden ayarlandığı açıkça anlaşılmalıdır
+Görselleştirmeler kompakt ve hızlı okunabilir olmalıdır (örneğin, “12 dakika içinde gecikme — 3. durağı yeniden sıralamanızı öneriyoruz”)
+5) Başarı ölçütleri (değerlendirme kriterleriyle uyumlu)
+Gecikme tahmini doğruluğu: modelin gerçek aksaklıkları ve riskleri ne kadar iyi tahmin ettiği (Etkinlik ve görev uyumu)
+Optimizasyon önerilerinin kalitesi: önerilerin teslimat hızını ve stabilitesini ne kadar iyileştirdiği (Etkinlik ve görev uyumu)
+Operatör arayüzü netliği: bir operatörün rota güncellemelerini ve önerilerini ne kadar kolay anlayabildiği (Kullanıcı deneyimi ve arayüz)
+AI'nın doğru kullanımı: AI'nın gecikme tahmini veya rota optimizasyonunu gerçekten iyileştirmesi (Makine öğrenimi/AI kullanımı)
+MVP kararlılığı ve kod kalitesi: sistem kritik hatalar olmadan çalışır, mantığı açıktır ve kod iyi yapılandırılmıştır (Kod kalitesi ve mimari)
+6) Son teslimatlar
+Katılımcılar üç zorunlu teslimat sağlamalıdır:
+
+Depo erişimi. Çözümü doğrulamak için gereken yeterli teknik bilgi: ön uç, API parçacığı, Postman çalışma alanı, Docker/Python derleme testi veya uzmanların projeyi çalıştırmasına ve değerlendirmesine olanak tanıyan herhangi bir format
+Proje sunumuna bağlantı. Fikri, sistem mimarisini, gecikme tahmin yöntemini ve örnek optimizasyonları açıklayan
+Gecikme tahmini ve rota optimizasyonu önerilerini gösteren çalışan bir MVP'ye veya tıklanabilir prototipe bağlantı
