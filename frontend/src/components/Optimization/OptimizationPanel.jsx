@@ -16,58 +16,99 @@ export default function OptimizationPanel({ routeId, onOptimized }) {
       setResult(data);
       if (onOptimized) onOptimized(data);
     } catch (err) {
-      setError('Optimizasyon basarisiz: ' + (err.response?.data?.detail || err.message));
+      setError('Optimizasyon başarısız: ' + (err.response?.data?.detail || err.message));
     } finally {
       setLoading(false);
     }
   };
 
+  const isDisabled = !routeId || loading;
+
   return (
-    <div className="mb-4">
-      <h3 className="text-sm font-semibold text-slate-600 mb-2">Rota Optimizasyonu</h3>
+    <div style={{ marginBottom: 12 }}>
+      <h3 style={{
+        fontSize: '0.7rem',
+        fontWeight: 600,
+        color: 'var(--text-secondary)',
+        marginBottom: 8,
+      }}>Rota Optimizasyonu</h3>
 
       <button
         onClick={handleOptimize}
-        disabled={!routeId || loading}
-        className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300
-                   text-white font-semibold rounded-lg text-sm transition-colors
-                   disabled:cursor-not-allowed"
+        disabled={isDisabled}
+        style={{
+          width: '100%',
+          padding: '9px 0',
+          background: isDisabled ? 'var(--btn-disabled-bg)' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+          color: isDisabled ? 'var(--btn-disabled-text)' : '#fff',
+          border: 'none',
+          borderRadius: 8,
+          fontSize: '0.8rem',
+          fontWeight: 600,
+          cursor: isDisabled ? 'not-allowed' : 'pointer',
+          transition: 'all 0.2s',
+        }}
       >
-        {loading ? 'Optimize ediliyor...' : 'Rotayi Optimize Et'}
+        {loading ? 'Optimize ediliyor...' : '⚡ Rotayı Optimize Et'}
       </button>
 
       {error && (
-        <p className="text-red-500 text-xs mt-2">{error}</p>
+        <p style={{ color: 'var(--accent-red-light)', fontSize: '0.7rem', marginTop: 6 }}>{error}</p>
       )}
 
       {result && (
-        <div className="mt-3 space-y-3">
+        <div style={{ marginTop: 10 }}>
           {/* Summary cards */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="bg-green-50 rounded-lg p-2 text-center border border-green-200">
-              <p className="text-lg font-bold text-green-700">{result.estimated_time_saved_min}</p>
-              <p className="text-xs text-green-600">dk tasarruf</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+            <div style={{
+              background: 'var(--green-bg)',
+              borderRadius: 8,
+              padding: '8px 4px',
+              textAlign: 'center',
+              border: '1px solid var(--green-border)',
+            }}>
+              <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent-green-light)', margin: 0 }}>{result.estimated_time_saved_min}</p>
+              <p style={{ fontSize: '0.55rem', color: 'var(--text-muted)', margin: 0 }}>dk tasarruf</p>
             </div>
-            <div className="bg-blue-50 rounded-lg p-2 text-center border border-blue-200">
-              <p className="text-lg font-bold text-blue-700">{result.windows_saved}</p>
-              <p className="text-xs text-blue-600">pencere kurtarildi</p>
+            <div style={{
+              background: 'var(--blue-bg)',
+              borderRadius: 8,
+              padding: '8px 4px',
+              textAlign: 'center',
+              border: '1px solid var(--blue-border)',
+            }}>
+              <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent-blue-light)', margin: 0 }}>{result.windows_saved}</p>
+              <p style={{ fontSize: '0.55rem', color: 'var(--text-muted)', margin: 0 }}>pencere kurtarıldı</p>
             </div>
-            <div className="bg-amber-50 rounded-lg p-2 text-center border border-amber-200">
-              <p className="text-lg font-bold text-amber-700">{result.changes?.length || 0}</p>
-              <p className="text-xs text-amber-600">degisiklik</p>
+            <div style={{
+              background: 'var(--amber-bg)',
+              borderRadius: 8,
+              padding: '8px 4px',
+              textAlign: 'center',
+              border: '1px solid var(--amber-border)',
+            }}>
+              <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent-amber-light)', margin: 0 }}>{result.changes?.length || 0}</p>
+              <p style={{ fontSize: '0.55rem', color: 'var(--text-muted)', margin: 0 }}>değişiklik</p>
             </div>
           </div>
 
           {/* Missed window comparison */}
-          <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Kacirilacak pencere:</span>
-              <span>
-                <span className="text-red-500 font-bold">{result.original_missed}</span>
-                <span className="mx-1 text-slate-400">-&gt;</span>
-                <span className="text-green-600 font-bold">{result.optimized_missed}</span>
-              </span>
-            </div>
+          <div style={{
+            background: 'var(--bg-card)',
+            borderRadius: 8,
+            padding: '8px 12px',
+            marginTop: 8,
+            border: '1px solid var(--border-accent)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: '0.8rem',
+          }}>
+            <span style={{ color: 'var(--text-muted)' }}>Kaçırılacak pencere:</span>
+            <span>
+              <span style={{ color: 'var(--accent-red-light)', fontWeight: 700 }}>{result.original_missed}</span>
+              <span style={{ margin: '0 4px', color: 'var(--text-dim)' }}>→</span>
+              <span style={{ color: 'var(--accent-green-light)', fontWeight: 700 }}>{result.optimized_missed}</span>
+            </span>
           </div>
 
           {/* Compare view */}
@@ -79,10 +120,18 @@ export default function OptimizationPanel({ routeId, onOptimized }) {
 
           {/* Change details */}
           {result.changes && result.changes.length > 0 && (
-            <div className="space-y-1">
-              <p className="text-xs font-semibold text-slate-500">Degisiklik Detaylari:</p>
+            <div style={{ marginTop: 8 }}>
+              <p style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4 }}>Değişiklik Detayları:</p>
               {result.changes.map((c, i) => (
-                <div key={i} className="bg-white rounded p-2 text-xs text-slate-600 border border-slate-100">
+                <div key={i} style={{
+                  background: 'var(--bg-card)',
+                  borderRadius: 6,
+                  padding: '6px 10px',
+                  fontSize: '0.7rem',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-subtle)',
+                  marginBottom: 3,
+                }}>
                   {c.reason}
                 </div>
               ))}

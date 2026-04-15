@@ -17,23 +17,43 @@ export default function DelayChart({ predictions }) {
   }));
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-      <h3 className="text-sm font-semibold text-slate-600 mb-3">
-        Durak Bazinda Tahmini Gecikme (dk)
+    <div style={{
+      background: 'var(--bg-card)',
+      borderRadius: 10,
+      padding: '10px 12px',
+      border: '1px solid var(--border-accent)',
+      boxShadow: 'var(--shadow-card)',
+    }}>
+      <h3 style={{
+        fontSize: '0.65rem',
+        fontWeight: 600,
+        color: 'var(--text-secondary)',
+        margin: '0 0 8px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.03em',
+      }}>
+        Durak Bazında Tahmini Gecikme
       </h3>
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-          <YAxis tick={{ fontSize: 12 }} unit=" dk" />
+      <ResponsiveContainer width="100%" height={140}>
+        <BarChart data={data} margin={{ top: 2, right: 4, left: -20, bottom: 2 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--bg-chart-grid)" />
+          <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--text-muted)' }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
+          <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} unit=" dk" axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
           <Tooltip
-            formatter={(value, name) => [`${value} dk`, 'Tahmini Gecikme']}
+            contentStyle={{
+              background: 'var(--tooltip-bg)',
+              border: '1px solid var(--tooltip-border)',
+              borderRadius: 8,
+              color: 'var(--tooltip-text)',
+              fontSize: 12,
+            }}
+            formatter={(value) => [`${value} dk`, 'Tahmini Gecikme']}
             labelFormatter={(label) => {
               const item = data.find(d => d.name === label);
               return `${label} (${item?.stopId || ''})`;
             }}
           />
-          <Bar dataKey="delay" radius={[4, 4, 0, 0]}>
+          <Bar dataKey="delay" radius={[3, 3, 0, 0]} maxBarSize={24}>
             {data.map((entry, idx) => (
               <Cell key={idx} fill={RISK_COLORS[entry.risk] || '#94A3B8'} />
             ))}

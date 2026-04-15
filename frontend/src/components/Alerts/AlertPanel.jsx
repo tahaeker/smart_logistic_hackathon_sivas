@@ -7,21 +7,38 @@ export default function AlertPanel({ predictions }) {
 
   if (highRisk.length === 0) {
     return (
-      <div className="bg-green-50 rounded-lg p-3 mb-4 border border-green-200">
-        <p className="text-green-700 text-sm font-medium">
-          Yuksek riskli durak yok. Rota guvenli gorunuyor.
+      <div style={{
+        background: 'var(--green-bg)',
+        borderRadius: 10,
+        padding: '10px 12px',
+        marginBottom: 12,
+        border: '1px solid var(--green-border)',
+      }}>
+        <p style={{ color: 'var(--accent-green-light)', fontSize: '0.8rem', fontWeight: 500, margin: 0 }}>
+          ✓ Yüksek riskli durak yok. Rota güvenli görünüyor.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="mb-4">
-      <h3 className="text-sm font-semibold text-slate-600 mb-2 flex items-center gap-1">
-        <span className="w-2 h-2 bg-red-500 rounded-full inline-block"></span>
-        Uyarilar ({highRisk.length} yuksek riskli durak)
+    <div style={{ marginBottom: 12 }}>
+      <h3 style={{
+        fontSize: '0.7rem',
+        fontWeight: 600,
+        color: 'var(--text-secondary)',
+        marginBottom: 8,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 5,
+      }}>
+        <span style={{
+          width: 6, height: 6, background: 'var(--accent-red)',
+          borderRadius: '50%', display: 'inline-block',
+        }}></span>
+        Uyarılar ({highRisk.length} yüksek riskli durak)
       </h3>
-      <div className="max-h-64 overflow-y-auto pr-1">
+      <div style={{ maxHeight: 200, overflowY: 'auto', paddingRight: 2 }}>
         {highRisk.map(p => (
           <AlertCard key={p.stop_id} prediction={p} />
         ))}
