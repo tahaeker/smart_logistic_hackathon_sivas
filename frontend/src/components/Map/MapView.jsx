@@ -102,7 +102,7 @@ function AutoFit({ stops }) {
   return null;
 }
 
-function StopMarkers({ stops, predictions, simulationResult }) {
+function StopMarkers({ stops, predictions, simulationResult, mapMode }) {
   const predMap = {};
   if (predictions) {
     predictions.forEach(p => { predMap[p.stop_sequence] = p; });
@@ -122,8 +122,10 @@ function StopMarkers({ stops, predictions, simulationResult }) {
     const missProb = pred.miss_probability ?? 0;
     const isSimOverride = sim && sim.delta_delay_min !== 0;
 
+    // In optimized mode, prefer visit_index (new order) over original stop_sequence
+    const displayNumber = stop.visit_index != null ? stop.visit_index : stop.stop_sequence;
     const icon = makeStopIcon(
-      stop.stop_sequence,
+      displayNumber,
       color,
       !!sim,
       sim ? RISK_COLORS[sim.simulated_risk_level] : null
@@ -131,7 +133,7 @@ function StopMarkers({ stops, predictions, simulationResult }) {
 
     return (
       <Marker
-        key={stop.stop_id || idx}
+        key={`${mapMode}-${stop.stop_id || idx}-${displayNumber}`}
         position={[stop.latitude, stop.longitude]}
         icon={icon}
       >
@@ -195,7 +197,8 @@ function RouteSegments({ stops, predictions, segments, selectedSegment, onSegmen
     });
   }
 
-  const sorted = [...stops].sort((a, b) => a.stop_sequence - b.stop_sequence);
+  // Iterate stops in the order provided (caller decides natural vs optimized)
+  const sorted = stops;
 
   return sorted.map((stop, i) => {
     if (i === 0) return null;
@@ -292,18 +295,88 @@ function MapLegend() {
   );
 }
 
-export default function MapView({ stops, predictions, segments, optimizedOrder, simulationResult, selectedSegment, onSegmentClick }) {
-  const hasStops = stops && stops.length > 0;
+function MapModeToggle({ mode, onChange, hasOptimized }) {
+  const btnBase = {
+    background: 'transparent',
+    border: 'none',
+    padding: '6px 14px',
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: 'pointer',
+    color: 'var(--text-secondary)',
+    borderRadius: 999,
+    transition: 'all 0.15s',
+  };
+  const activeBtn = {
+    ...btnBase,
+    background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+    color: '#fff',
+    boxShadow: '0 2px 6px rgba(59,130,246,0.35)',
+  };
+  const disabledBtn = {
+    ...btnBase,
+    color: 'var(--text-dim)',
+    cursor: 'not-allowed',
+  };
 
-  // Optimized polyline positions
-  let optimizedPositions = null;
-  if (optimizedOrder && optimizedOrder.length > 0 && hasStops) {
-    const stopMap = {};
-    stops.forEach(s => { stopMap[s.stop_sequence] = s; });
-    optimizedPositions = optimizedOrder
-      .map(seq => stopMap[seq])
-      .filter(Boolean)
-      .map(s => [s.latitude, s.longitude]);
+  return (
+    <div style={{
+      position: 'absolute',
+      top: 12,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      background: 'var(--overlay-bg)',
+      border: '1px solid var(--border)',
+      borderRadius: 999,
+      padding: 3,
+      display: 'flex',
+      gap: 2,
+      zIndex: 1000,
+      boxShadow: '0 2px 10px rgba(0,0,0,0.18)',
+    }}>
+      <button
+        style={mode === 'current' ? activeBtn : btnBase}
+        onClick={() => onChange('current')}
+      >
+        Şu Anki
+      </button>
+      <button
+        style={!hasOptimized ? disabledBtn : (mode === 'optimized' ? activeBtn : btnBase)}
+        onClick={() => hasOptimized && onChange('optimized')}
+        disabled={!hasOptimized}
+        title={hasOptimized ? 'Optimize edilmiş sırayı göster' : 'Önce "Rotayı Optimize Et" butonunu kullan'}
+      >
+        Optimize
+      </button>
+    </div>
+  );
+}
+
+export default function MapView({
+  stops, predictions, segments,
+  optimizedOrder, optimizedSegments,
+  mapMode = 'current', onMapModeChange,
+  simulationResult, selectedSegment, onSegmentClick
+}) {
+  const hasStops = stops && stops.length > 0;
+  const hasOptimized = Array.isArray(optimizedOrder) && optimizedOrder.length > 0;
+
+  // In optimized mode, reorder stops by optimized_order so numbers on the route reflect
+  // the new visit order. Fall back to natural order if optimized is missing.
+  let renderedStops = stops;
+  let renderedSegments = segments;
+  if (mapMode === 'optimized' && hasOptimized && hasStops) {
+    const stopBySeq = {};
+    stops.forEach(s => { stopBySeq[s.stop_sequence] = s; });
+    // Reorder stops, but keep their original stop_sequence so routing lookups work.
+    // We add a synthetic visit_index for display purposes.
+    renderedStops = optimizedOrder
+      .map((seq, i) => {
+        const s = stopBySeq[seq];
+        return s ? { ...s, visit_index: i + 1 } : null;
+      })
+      .filter(Boolean);
+    renderedSegments = optimizedSegments || [];
   }
 
   return (
@@ -319,36 +392,38 @@ export default function MapView({ stops, predictions, segments, optimizedOrder, 
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {hasStops && <AutoFit stops={stops} />}
+        {hasStops && <AutoFit stops={renderedStops} />}
 
         {/* Colored + arrowed route segments (real road geometry if available) */}
         {hasStops && (
           <RouteSegments
-            stops={stops}
+            stops={renderedStops}
             predictions={predictions || []}
-            segments={segments || []}
-            selectedSegment={selectedSegment}
-            onSegmentClick={onSegmentClick}
-          />
-        )}
-
-        {/* Optimized order overlay */}
-        {optimizedPositions && (
-          <Polyline
-            positions={optimizedPositions}
-            pathOptions={{ color: '#6366F1', weight: 3, opacity: 0.7, dashArray: '6 4' }}
+            segments={renderedSegments || []}
+            selectedSegment={mapMode === 'current' ? selectedSegment : null}
+            onSegmentClick={mapMode === 'current' ? onSegmentClick : undefined}
           />
         )}
 
         {/* Numbered stop markers */}
         {hasStops && (
           <StopMarkers
-            stops={stops}
+            stops={renderedStops}
             predictions={predictions || []}
             simulationResult={simulationResult}
+            mapMode={mapMode}
           />
         )}
       </MapContainer>
+
+      {/* Mode toggle at top */}
+      {hasStops && (
+        <MapModeToggle
+          mode={mapMode}
+          onChange={onMapModeChange}
+          hasOptimized={hasOptimized}
+        />
+      )}
 
       {/* Legend overlay (outside MapContainer to avoid z-index issues) */}
       {hasStops && <MapLegend />}

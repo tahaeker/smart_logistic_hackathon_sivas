@@ -23,8 +23,12 @@ export default function App() {
   const [predictions, setPredictions] = useState(null);
   const [overview, setOverview] = useState(null);
   const [optimizedOrder, setOptimizedOrder] = useState(null);
+  const [optimizedSegments, setOptimizedSegments] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Map display mode: 'current' shows original order, 'optimized' shows optimized order
+  const [mapMode, setMapMode] = useState('current');
 
   // Simulation state
   const [selectedSegment, setSelectedSegment] = useState(null);
@@ -47,12 +51,14 @@ export default function App() {
       .catch(err => console.error('Failed to load overview:', err));
   }, []);
 
-  // When route changes, load data + predictions, reset simulation
+  // When route changes, load data + predictions, reset simulation + map mode
   useEffect(() => {
     if (!selectedRouteId) {
       setRouteData(null);
       setPredictions(null);
       setOptimizedOrder(null);
+      setOptimizedSegments(null);
+      setMapMode('current');
       setSelectedSegment(null);
       setConditionOverrides({});
       setSimulationResult(null);
@@ -61,6 +67,8 @@ export default function App() {
 
     setLoading(true);
     setOptimizedOrder(null);
+    setOptimizedSegments(null);
+    setMapMode('current');
     setSelectedSegment(null);
     setConditionOverrides({});
     setSimulationResult(null);
@@ -79,6 +87,8 @@ export default function App() {
 
   const handleOptimized = (result) => {
     setOptimizedOrder(result.optimized_order);
+    setOptimizedSegments(result.segments || []);
+    setMapMode('optimized');  // Auto-switch to optimized view
   };
 
   const handleSegmentClick = (segment) => {
@@ -136,6 +146,9 @@ export default function App() {
             predictions={predictions}
             segments={routeData?.segments || []}
             optimizedOrder={optimizedOrder}
+            optimizedSegments={optimizedSegments}
+            mapMode={mapMode}
+            onMapModeChange={setMapMode}
             simulationResult={simulationResult}
             selectedSegment={selectedSegment}
             onSegmentClick={handleSegmentClick}

@@ -11,12 +11,14 @@ sys.path.insert(0, ML_DIR)
 from optimizer import optimize_route
 from services.data_service import get_stops_for_route
 from services.prediction_service import predict_for_route
+from services.routing_service import get_optimized_geometry
 
 
 def optimize_for_route(route_id: str):
     """
     Run optimization for a given route.
-    Returns optimization result dict.
+    Returns optimization result dict, including real-road segments for the
+    optimized visit order (OSRM geometry, cached per unique order).
     """
     stops = get_stops_for_route(route_id)
     if not stops:
@@ -28,4 +30,12 @@ def optimize_for_route(route_id: str):
 
     result = optimize_route(stops, predictions)
     result["route_id"] = route_id
+
+    # Attach real road geometry for the optimized visit order
+    optimized_order = result.get("optimized_order") or []
+    if optimized_order:
+        result["segments"] = get_optimized_geometry(route_id, stops, optimized_order)
+    else:
+        result["segments"] = []
+
     return result
