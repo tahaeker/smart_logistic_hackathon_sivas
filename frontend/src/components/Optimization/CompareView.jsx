@@ -8,21 +8,31 @@ export default function CompareView({ originalOrder, optimizedOrder, changes }) 
 
   const renderOrder = (order, label) => (
     <div>
-      <p className="text-xs text-slate-500 font-semibold mb-1">{label}</p>
-      <div className="flex flex-wrap gap-1">
+      <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 4 }}>{label}</p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'center' }}>
         {order.map((seq, idx) => {
           const isChanged = changedStops.has(seq);
           return (
-            <span key={idx} className="flex items-center">
+            <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
               <span
-                className={`inline-block w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center
-                  ${isChanged ? 'bg-amber-100 text-amber-700 ring-2 ring-amber-400' : 'bg-slate-100 text-slate-600'}`}
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 24,
+                  height: 24,
+                  borderRadius: '50%',
+                  fontSize: '0.65rem',
+                  fontWeight: 700,
+                  background: isChanged ? 'var(--amber-bg)' : 'var(--bg-surface)',
+                  color: isChanged ? 'var(--accent-amber-light)' : 'var(--text-secondary)',
+                  border: isChanged ? '2px solid var(--amber-border)' : '1px solid var(--border)',
+                }}
               >
                 {seq}
               </span>
               {idx < order.length - 1 && (
-                <span className="text-slate-300 mx-0.5 text-xs">&#8594;</span>
+                <span style={{ color: 'var(--border)', fontSize: '0.6rem' }}>→</span>
               )}
             </span>
           );
@@ -32,9 +42,18 @@ export default function CompareView({ originalOrder, optimizedOrder, changes }) 
   );
 
   return (
-    <div className="bg-white rounded-lg p-3 border border-slate-200 space-y-2">
-      {renderOrder(originalOrder, 'Orijinal Siralama')}
-      {renderOrder(optimizedOrder, 'Onerilen Siralama')}
+    <div style={{
+      background: 'var(--bg-card)',
+      borderRadius: 8,
+      padding: 10,
+      border: '1px solid var(--border-accent)',
+      marginTop: 8,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+    }}>
+      {renderOrder(originalOrder, 'Orijinal Sıralama')}
+      {renderOrder(optimizedOrder, 'Önerilen Sıralama')}
     </div>
   );
 }

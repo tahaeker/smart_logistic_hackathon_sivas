@@ -14,5 +14,6 @@ export const fetchOptimization = (routeId) => api.post('/optimize', { route_id: 
 export const fetchOverview = () => api.get('/stats/overview').then(r => r.data);
 export const fetchWeather = () => api.get('/weather/current').then(r => r.data);
 export const fetchTraffic = () => api.get('/traffic/segments').then(r => r.data);
+export const fetchSimulation = (routeId, overrides) => api.post('/simulate', { route_id: routeId, overrides }).then(r => r.data);
 
 export default api;

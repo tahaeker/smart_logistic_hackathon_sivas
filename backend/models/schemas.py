@@ -1,6 +1,6 @@
 """Pydantic models for Smart Logistics API."""
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 
@@ -54,3 +54,44 @@ class OverviewStats(BaseModel):
     missed_window_rate: float
     worst_weather: str
     worst_traffic: str
+
+
+class StopConditionOverride(BaseModel):
+    stop_sequence: int
+    traffic_level: Optional[str] = None
+    weather_condition: Optional[str] = None
+    temperature_c: Optional[float] = None
+    precipitation_mm: Optional[float] = Field(default=None, ge=0)
+    wind_speed_kmh: Optional[float] = Field(default=None, ge=0)
+    visibility_km: Optional[float] = Field(default=None, ge=0)
+    humidity_pct: Optional[float] = Field(default=None, ge=0, le=100)
+    road_incident: Optional[bool] = None
+    incident_severity: Optional[float] = Field(default=None, ge=0)
+
+
+class SimulationRequest(BaseModel):
+    route_id: str
+    overrides: List[StopConditionOverride]
+
+
+class SimulationStopResult(BaseModel):
+    stop_id: str
+    stop_sequence: int
+    original_delay_min: float
+    original_miss_probability: float
+    original_risk_level: str
+    simulated_delay_min: float
+    simulated_miss_probability: float
+    simulated_risk_level: str
+    delta_delay_min: float
+    top_factors: List[TopFactor]
+
+
+class SimulationResponse(BaseModel):
+    route_id: str
+    stops: List[SimulationStopResult]
+    original_avg_delay_min: float
+    simulated_avg_delay_min: float
+    original_missed_windows: int
+    simulated_missed_windows: int
+    delta_avg_delay_min: float

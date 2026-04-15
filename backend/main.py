@@ -16,11 +16,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from routers import routes, predictions, optimize
+from routers import routes, predictions, optimize, simulate
 
 app.include_router(routes.router, prefix="/api")
 app.include_router(predictions.router, prefix="/api")
 app.include_router(optimize.router, prefix="/api")
+app.include_router(simulate.router, prefix="/api")
 
 
 @app.get("/")
@@ -37,6 +38,7 @@ def root():
             "GET  /api/stats/overview",
             "GET  /api/weather/current",
             "GET  /api/traffic/segments",
+            "POST /api/simulate",
         ]
     }
 

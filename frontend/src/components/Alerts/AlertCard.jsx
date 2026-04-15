@@ -2,30 +2,44 @@ export default function AlertCard({ prediction }) {
   const { stop_id, stop_sequence, predicted_delay_min, miss_probability, risk_level, top_factors } = prediction;
 
   return (
-    <div className="bg-white rounded-lg p-3 shadow-sm border-l-4 border-red-500 mb-2">
-      <div className="flex justify-between items-start">
+    <div style={{
+      background: 'var(--bg-card)',
+      borderRadius: 10,
+      padding: '10px 12px',
+      borderLeft: '3px solid var(--accent-red)',
+      marginBottom: 6,
+      boxShadow: 'var(--shadow-card)',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <p className="font-semibold text-slate-800 text-sm">
+          <p style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.8rem', margin: 0 }}>
             Durak #{stop_sequence}
-            <span className="text-slate-400 font-normal ml-1">({stop_id})</span>
+            <span style={{ color: 'var(--text-muted)', fontWeight: 400, marginLeft: 4, fontSize: '0.7rem' }}>({stop_id})</span>
           </p>
-          <p className="text-red-600 font-bold text-lg">
+          <p style={{ color: 'var(--accent-red-light)', fontWeight: 700, fontSize: '0.95rem', margin: '2px 0 0' }}>
             +{predicted_delay_min} dk gecikme riski
           </p>
-          <p className="text-xs text-slate-500">
-            Kacirma olasiligi: %{(miss_probability * 100).toFixed(0)}
+          <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', margin: '1px 0 0' }}>
+            Kaçırma olasılığı: %{(miss_probability * 100).toFixed(0)}
           </p>
         </div>
-        <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded">
+        <span style={{
+          background: 'var(--red-bg)',
+          color: 'var(--accent-red-light)',
+          fontSize: '0.6rem',
+          fontWeight: 700,
+          padding: '2px 8px',
+          borderRadius: 6,
+        }}>
           {risk_level.toUpperCase()}
         </span>
       </div>
 
       {top_factors && top_factors.length > 0 && (
-        <div className="mt-2 pt-2 border-t border-slate-100">
-          <p className="text-xs text-slate-500 font-semibold mb-1">Sebepler:</p>
+        <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px solid var(--border-subtle)' }}>
+          <p style={{ fontSize: '0.6rem', color: 'var(--text-muted)', fontWeight: 600, margin: '0 0 2px' }}>Sebepler:</p>
           {top_factors.map((f, i) => (
-            <p key={i} className="text-xs text-slate-600">
+            <p key={i} style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', margin: '1px 0' }}>
               - {f.feature} ({f.impact > 0 ? '+' : ''}{f.impact})
             </p>
           ))}

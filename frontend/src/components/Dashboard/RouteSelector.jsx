@@ -1,18 +1,34 @@
 export default function RouteSelector({ routes, selectedRoute, onSelect, loading }) {
   return (
-    <div className="mb-4">
-      <label className="block text-sm font-semibold text-slate-600 mb-1">
-        Rota Sec
+    <div style={{ marginBottom: 8 }}>
+      <label style={{
+        display: 'block',
+        fontSize: '0.65rem',
+        fontWeight: 600,
+        color: 'var(--text-muted)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        marginBottom: 4,
+      }}>
+        Rota Seç
       </label>
       <select
         value={selectedRoute || ''}
         onChange={e => onSelect(e.target.value)}
         disabled={loading}
-        className="w-full p-2.5 bg-white border border-slate-200 rounded-lg text-sm
-                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-                   disabled:opacity-50 cursor-pointer"
+        style={{
+          width: '100%',
+          padding: '8px 10px',
+          background: 'var(--bg-input)',
+          border: '1px solid var(--border)',
+          borderRadius: 8,
+          color: 'var(--text-primary)',
+          fontSize: '0.8rem',
+          cursor: 'pointer',
+          outline: 'none',
+        }}
       >
-        <option value="">-- Rota secin --</option>
+        <option value="">-- Rota seçin --</option>
         {routes.map(r => (
           <option key={r.route_id} value={r.route_id}>
             {r.route_id} | {r.vehicle_type} | {r.num_stops} durak | {r.weather_condition} | {r.traffic_level}
