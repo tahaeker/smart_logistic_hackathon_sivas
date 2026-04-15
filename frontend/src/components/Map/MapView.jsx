@@ -181,9 +181,20 @@ function StopMarkers({ stops, predictions, simulationResult }) {
   });
 }
 
-function RouteSegments({ stops, predictions, selectedSegment, onSegmentClick }) {
+function RouteSegments({ stops, predictions, segments, selectedSegment, onSegmentClick }) {
   const predMap = {};
   if (predictions) predictions.forEach(pp => { predMap[pp.stop_sequence] = pp; });
+
+  // Build lookup: "fromSeq-toSeq" → real road geometry (array of [lat, lng] points)
+  const geomMap = {};
+  if (segments) {
+    segments.forEach(seg => {
+      if (seg.geometry && seg.geometry.length >= 2) {
+        geomMap[`${seg.from_seq}-${seg.to_seq}`] = seg;
+      }
+    });
+  }
+
   const sorted = [...stops].sort((a, b) => a.stop_sequence - b.stop_sequence);
 
   return sorted.map((stop, i) => {
@@ -194,10 +205,24 @@ function RouteSegments({ stops, predictions, selectedSegment, onSegmentClick }) 
     const delay = predMap[stop.stop_sequence] && predMap[stop.stop_sequence].predicted_delay_min != null
       ? predMap[stop.stop_sequence].predicted_delay_min : '-';
 
-    const midLat    = (prev.latitude  + stop.latitude)  / 2;
-    const midLng    = (prev.longitude + stop.longitude) / 2;
-    const bearing   = calcBearing(prev.latitude, prev.longitude, stop.latitude, stop.longitude);
+    // Use real road geometry if available, fall back to straight line
+    const segInfo = geomMap[`${prev.stop_sequence}-${stop.stop_sequence}`];
+    const positions = segInfo && segInfo.geometry.length >= 2
+      ? segInfo.geometry
+      : [[prev.latitude, prev.longitude], [stop.latitude, stop.longitude]];
+
+    // Arrow at mid-index of the geometry, bearing from the actual road direction there
+    const midIdx = Math.floor(positions.length / 2);
+    const midPoint = positions[midIdx];
+    const bearingFrom = positions[Math.max(0, midIdx - 1)];
+    const bearingTo   = positions[Math.min(positions.length - 1, midIdx + 1)];
+    const bearing   = calcBearing(bearingFrom[0], bearingFrom[1], bearingTo[0], bearingTo[1]);
     const arrowIcon = makeArrowIcon(bearing);
+
+    // Prefer OSRM distance (km, 1 decimal) if available, else CSV distance
+    const distanceKm = segInfo && segInfo.distance_m
+      ? (segInfo.distance_m / 1000).toFixed(1)
+      : stop.distance_from_prev_km;
 
     const isSelected = selectedSegment
       && selectedSegment.fromSeq === prev.stop_sequence
@@ -212,33 +237,33 @@ function RouteSegments({ stops, predictions, selectedSegment, onSegmentClick }) 
     return (
       <div key={segKey}>
         <Polyline
-          positions={[[prev.latitude, prev.longitude], [stop.latitude, stop.longitude]]}
+          positions={positions}
           pathOptions={{ color: 'transparent', weight: 16, opacity: 0 }}
           eventHandlers={{ click: handleClick }}
         />
         {isSelected && (
           <Polyline
-            positions={[[prev.latitude, prev.longitude], [stop.latitude, stop.longitude]]}
+            positions={positions}
             pathOptions={{ color: '#fff', weight: 10, opacity: 0.45 }}
             interactive={false}
           />
         )}
         <Polyline
-          positions={[[prev.latitude, prev.longitude], [stop.latitude, stop.longitude]]}
+          positions={positions}
           pathOptions={{ color, weight: isSelected ? 5 : 4, opacity: 0.9 }}
           eventHandlers={{ click: handleClick }}
         >
           <Tooltip sticky>
             <div style={{ fontSize: 12, lineHeight: 1.5 }}>
-              <b>Durak #{prev.stop_sequence} to #{stop.stop_sequence}</b><br />
-              {stop.distance_from_prev_km} km{predMap[stop.stop_sequence] ? ' | ' + tooltipLabel : ''}<br />
+              <b>Durak #{prev.stop_sequence} → #{stop.stop_sequence}</b><br />
+              {distanceKm} km{predMap[stop.stop_sequence] ? ' | ' + tooltipLabel : ''}<br />
               <span style={{ color: isSelected ? '#3b82f6' : '#94a3b8', fontSize: 11 }}>
-                {isSelected ? 'Secili - kosullari duzenle' : 'Tikla: kosullari duzenle'}
+                {isSelected ? 'Seçili — koşulları düzenle' : 'Tıkla: koşulları düzenle'}
               </span>
             </div>
           </Tooltip>
         </Polyline>
-        <Marker position={[midLat, midLng]} icon={arrowIcon} interactive={false} />
+        <Marker position={midPoint} icon={arrowIcon} interactive={false} />
       </div>
     );
   });
@@ -267,7 +292,7 @@ function MapLegend() {
   );
 }
 
-export default function MapView({ stops, predictions, optimizedOrder, simulationResult, selectedSegment, onSegmentClick }) {
+export default function MapView({ stops, predictions, segments, optimizedOrder, simulationResult, selectedSegment, onSegmentClick }) {
   const hasStops = stops && stops.length > 0;
 
   // Optimized polyline positions
@@ -296,9 +321,15 @@ export default function MapView({ stops, predictions, optimizedOrder, simulation
 
         {hasStops && <AutoFit stops={stops} />}
 
-        {/* Colored + arrowed route segments */}
+        {/* Colored + arrowed route segments (real road geometry if available) */}
         {hasStops && (
-          <RouteSegments stops={stops} predictions={predictions || []} selectedSegment={selectedSegment} onSegmentClick={onSegmentClick} />
+          <RouteSegments
+            stops={stops}
+            predictions={predictions || []}
+            segments={segments || []}
+            selectedSegment={selectedSegment}
+            onSegmentClick={onSegmentClick}
+          />
         )}
 
         {/* Optimized order overlay */}

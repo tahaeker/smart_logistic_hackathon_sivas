@@ -134,6 +134,7 @@ export default function App() {
           <MapView
             stops={routeData?.stops || []}
             predictions={predictions}
+            segments={routeData?.segments || []}
             optimizedOrder={optimizedOrder}
             simulationResult={simulationResult}
             selectedSegment={selectedSegment}

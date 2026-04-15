@@ -3,7 +3,8 @@ import {
 } from 'recharts';
 
 function SummaryCard({ label, original, simulated, unit = 'dk', lowerIsBetter = true }) {
-  const delta = simulated - original;
+  // Round delta to 1 decimal to avoid JS floating-point noise (e.g. 23.1 - 23 = 0.10000000000000142)
+  const delta = Math.round((simulated - original) * 10) / 10;
   const improved = lowerIsBetter ? delta < 0 : delta > 0;
   const neutral = delta === 0;
   const deltaColor = neutral ? 'var(--text-secondary)' : improved ? 'var(--accent-green-light)' : 'var(--accent-red-light)';

@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ':*)",
+      "Bash(python3 /tmp/write_mapview.py)",
+      "Bash(node -e ':*)",
+      "Bash(node -e \"require\\('fs'\\).writeFileSync\\('/tmp/wm.js', require\\('fs'\\).readFileSync\\('C:/Users/Tahae/smart-logistics/frontend/src/components/Map/MapView.jsx', 'utf8'\\).replace\\('function StopMarkers\\({ stops, predictions, simulationResult, onStopClick }\\)', 'function StopMarkers\\({ stops, predictions, simulationResult }\\)'\\).replace\\('eventHandlers={{\\\\n          click: \\(\\) => onStopClick && onStopClick\\(stop.stop_sequence\\),\\\\n        }}', ''\\).replace\\('function RouteSegments\\({ stops, predictions }\\)', 'function RouteSegments\\({ stops, predictions, selectedSegment, onSegmentClick }\\)'\\).replace\\(\\\\\"export default function MapView\\({ stops, predictions, optimizedOrder, simulationResult, onStopClick }\\)\\\\\", \\\\\"export default function MapView\\({ stops, predictions, optimizedOrder, simulationResult, selectedSegment, onSegmentClick }\\)\\\\\"\\), 'utf8'\\); console.log\\('done'\\)\")",
+      "Bash(node \"C:/Users/Tahae/smart-logistics/fix_mapview.js\")",
+      "Bash(node fix_mapview.js)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create --title 'feat: what-if simulation, segment map UX, dashboard polish' --body ':*)",
+      "Bash(where gh:*)",
+      "Bash(winget list:*)",
+      "Bash(python -c \"from services import prediction_service as p; print\\('delay_model:', p.delay_model is not None\\); print\\('window_model:', p.window_model is not None\\); print\\('shap:', p.shap_explainer is not None\\)\")",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}
