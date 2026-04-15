@@ -7,13 +7,18 @@ import AlertPanel from './components/Alerts/AlertPanel';
 import OptimizationPanel from './components/Optimization/OptimizationPanel';
 import ConditionEditorSidebar from './components/Simulation/ConditionEditorSidebar';
 import SimulationResultChart from './components/Simulation/SimulationResultChart';
+import RouteTimeline from './components/History/RouteTimeline';
 import { fetchRoutes, fetchRoute, fetchPredictions, fetchOverview } from './api/client';
 import { useTheme } from './hooks/useTheme';
 
 const TABS = [
   { id: 'overview', label: 'Özet', icon: '📊' },
   { id: 'tools', label: 'Araçlar', icon: '⚙️' },
+  { id: 'history', label: 'Zaman', icon: '🕒' },
 ];
+
+let __eventSeq = 0;
+const nextEventId = () => `ev-${Date.now()}-${++__eventSeq}`;
 
 export default function App() {
   const { theme, toggleTheme, isDark } = useTheme();
@@ -34,6 +39,11 @@ export default function App() {
   const [selectedSegment, setSelectedSegment] = useState(null);
   const [conditionOverrides, setConditionOverrides] = useState({});
   const [simulationResult, setSimulationResult] = useState(null);
+
+  // Per-route history of operations (optimize, simulate, …)
+  // Shape: { [routeId]: [{ id, type, timestamp, summary, snapshot }] }
+  const [history, setHistory] = useState({});
+  const [activeEventId, setActiveEventId] = useState(null);
 
   // Load routes list and overview on mount
   useEffect(() => {
@@ -80,20 +90,103 @@ export default function App() {
       .then(([rd, pd]) => {
         setRouteData(rd);
         setPredictions(pd.predictions);
+
+        // Seed an "initial" event for this route if we haven't already
+        setHistory(h => {
+          if (h[selectedRouteId] && h[selectedRouteId].length > 0) return h;
+          const initEvent = {
+            id: nextEventId(),
+            type: 'initial',
+            timestamp: Date.now(),
+            summary: `${(rd.stops || []).length} durak yüklendi`,
+            snapshot: {
+              mapMode: 'current',
+              optimizedOrder: null,
+              optimizedSegments: null,
+              simulationResult: null,
+              conditionOverrides: {},
+              selectedSegment: null,
+            },
+          };
+          setActiveEventId(initEvent.id);
+          return { ...h, [selectedRouteId]: [initEvent] };
+        });
       })
       .catch(err => console.error('Failed to load route data:', err))
       .finally(() => setLoading(false));
   }, [selectedRouteId]);
 
+  const pushEvent = (event) => {
+    setHistory(h => {
+      const prev = h[selectedRouteId] || [];
+      return { ...h, [selectedRouteId]: [...prev, event] };
+    });
+    setActiveEventId(event.id);
+  };
+
   const handleOptimized = (result) => {
     setOptimizedOrder(result.optimized_order);
     setOptimizedSegments(result.segments || []);
     setMapMode('optimized');  // Auto-switch to optimized view
+
+    const order = result.optimized_order || [];
+    pushEvent({
+      id: nextEventId(),
+      type: 'optimize',
+      timestamp: Date.now(),
+      summary: `Yeni sıra: ${order.join(' → ')}`,
+      snapshot: {
+        mapMode: 'optimized',
+        optimizedOrder: order,
+        optimizedSegments: result.segments || [],
+        simulationResult,
+        conditionOverrides,
+        selectedSegment,
+      },
+    });
   };
 
   const handleSegmentClick = (segment) => {
     setSelectedSegment(segment);
     setActiveTab('tools');
+  };
+
+  const handleSimulationResult = (result) => {
+    setSimulationResult(result);
+    if (!result) return;
+    const n = result.stops ? result.stops.length : 0;
+    const delta = result.delta_avg_delay_min;
+    const sign = delta > 0 ? '+' : '';
+    pushEvent({
+      id: nextEventId(),
+      type: 'simulate',
+      timestamp: Date.now(),
+      summary: `${n} durak | Ort. Δ ${sign}${delta} dk`,
+      snapshot: {
+        mapMode,
+        optimizedOrder,
+        optimizedSegments,
+        simulationResult: result,
+        conditionOverrides,
+        selectedSegment,
+      },
+    });
+  };
+
+  const handleRestoreEvent = (event) => {
+    const s = event.snapshot || {};
+    setMapMode(s.mapMode ?? 'current');
+    setOptimizedOrder(s.optimizedOrder ?? null);
+    setOptimizedSegments(s.optimizedSegments ?? null);
+    setSimulationResult(s.simulationResult ?? null);
+    setConditionOverrides(s.conditionOverrides ?? {});
+    setSelectedSegment(s.selectedSegment ?? null);
+    setActiveEventId(event.id);
+  };
+
+  const handleClearHistory = () => {
+    setHistory(h => ({ ...h, [selectedRouteId]: [] }));
+    setActiveEventId(null);
   };
 
   return (
@@ -216,11 +309,20 @@ export default function App() {
                       routeId={selectedRouteId}
                       overrides={conditionOverrides}
                       onOverridesChange={setConditionOverrides}
-                      onSimulationResult={setSimulationResult}
+                      onSimulationResult={handleSimulationResult}
                     />
 
                     <SimulationResultChart simulationResult={simulationResult} />
                   </>
+                )}
+
+                {activeTab === 'history' && (
+                  <RouteTimeline
+                    events={history[selectedRouteId] || []}
+                    activeEventId={activeEventId}
+                    onRestore={handleRestoreEvent}
+                    onClear={handleClearHistory}
+                  />
                 )}
               </div>
             </>
